@@ -38,8 +38,8 @@ public class ImageManipulator {
                         sumB += blue;
                     }
                 }
-                final int pixelCount = kernel.length * kernel.length;
-                result[i + 1][j + 1] = new Color(sumR / pixelCount, sumG / pixelCount, sumB / pixelCount).getRGB();
+                result[i + 1][j + 1] = new Color(sumR > 255 ? 255 : sumR < 0 ? 0 : sumR,
+                        sumG > 255 ? 255 : sumG < 0 ? 0 : sumG, sumB > 255 ? 255 : sumB < 0 ? 0 : sumB).getRGB();
             }
         }
         return result;
@@ -62,7 +62,7 @@ public class ImageManipulator {
 
     public void boxBlur(String imgName, int factor) {
         double[][] kernel = new double[factor][factor];
-        Arrays.stream(kernel).forEach(a -> Arrays.fill(a, (1f / (float) factor)));
+        Arrays.stream(kernel).forEach(a -> Arrays.fill(a, (1f / (float) Math.pow(factor, 2))));
         try {
             saveImage(imgName, multiplyByKernel(convertToPixels(), kernel));
         } catch (IOException e) {
@@ -71,15 +71,26 @@ public class ImageManipulator {
     }
 
     public void gaussianBlur(String imgName) {
-        double[][] kernel = { { 1f / 32f, 1f / 16f, 1f / 8f, 1f / 4f, 1f / 2f, 1f / 4f, 1f / 8f, 1f / 16f, 1f / 32f },
-                { 1f / 16f, 1f / 8f, 1f / 4f, 1f / 2f, 1f / 1f, 1f / 2f, 1f / 4f, 1f / 8f, 1f / 16f },
-                { 1f / 8f, 1f / 4f, 1f / 2f, 1f / 1f, 1f / 1f, 1f / 1f, 1f / 2f, 1f / 4f, 1f / 8f },
-                { 1f / 4f, 1f / 2f, 1f / 1f, 1f / 1f, 1f / 1f, 1f / 1f, 1f / 1f, 1f / 2f, 1f / 4f },
-                { 1f / 2f, 1f / 1f, 1f / 1f, 1f / 1f, 1f / 1f, 1f / 1f, 1f / 1f, 1f / 1f, 1f / 2f },
-                { 1f / 4f, 1f / 2f, 1f / 1f, 1f / 1f, 1f / 1f, 1f / 1f, 1f / 1f, 1f / 2f, 1f / 4f },
-                { 1f / 8f, 1f / 4f, 1f / 2f, 1f / 1f, 1f / 1f, 1f / 1f, 1f / 2f, 1f / 4f, 1f / 8f },
-                { 1f / 16f, 1f / 8f, 1f / 4f, 1f / 2f, 1f / 1f, 1f / 2f, 1f / 4f, 1f / 8f, 1f / 16f },
-                { 1f / 32f, 1f / 16f, 1f / 8f, 1f / 4f, 1f / 2f, 1f / 4f, 1f / 8f, 1f / 16f, 1f / 32f } };
+        double[][] kernel = { { 1f / 16f, 1f / 8f, 1f / 16f }, { 1f / 8f, 1f / 4f, 1f / 8f },
+                { 1f / 16f, 1f / 8f, 1f / 16f } };
+        try {
+            saveImage(imgName, multiplyByKernel(convertToPixels(), kernel));
+        } catch (IOException e) {
+            System.out.println("Could not save output image\n" + e);
+        }
+    }
+
+    public void sharpen(String imgName) {
+        double[][] kernel = { { 0, -1, 0 }, { -1, 5, -1 }, { 0, -1, 0 } };
+        try {
+            saveImage(imgName, multiplyByKernel(convertToPixels(), kernel));
+        } catch (IOException e) {
+            System.out.println("Could not save output image\n" + e);
+        }
+    }
+
+    public void edges(String imgName) {
+        double[][] kernel = { { -1, -1, -1 }, { -1, 8, -1 }, { -1, -1, -1 } };
         try {
             saveImage(imgName, multiplyByKernel(convertToPixels(), kernel));
         } catch (IOException e) {
