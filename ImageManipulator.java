@@ -56,7 +56,7 @@ public class ImageManipulator {
         System.out.println();
         File img = new File(System.getProperty("user.dir") + "\\output\\" + name + ".jpg");
         if (ImageIO.write(out, "JPG", img)) {
-            System.out.println("Created successfully");
+            System.out.println(name + ".jpg Created successfully");
         }
     }
 
